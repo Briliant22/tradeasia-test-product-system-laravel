@@ -57,16 +57,15 @@ class ProductController extends Controller
     private function validateData(Request $request)
     {
         return $request->validate([
-            'name' => 'required|json',
+            'name' => 'required|array',
             'hs_code' => 'required|string',
             'cas_number' => 'required|string',
             'image' => 'nullable|image',
-            'description' => 'required|json',
-            'application' => 'required|json',
-            'meta_title' => 'nullable|json',
-            'meta_keyword' => 'nullable|json',
-            'meta_description' => 'nullable|json',
+            'description' => 'required|array',
+            'application' => 'required|array',
+            'meta_title' => 'nullable|array',
+            'meta_keyword' => 'nullable|array',
+            'meta_description' => 'nullable|array',
         ]);
     }
 }
-
