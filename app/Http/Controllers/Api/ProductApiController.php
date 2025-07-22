@@ -10,38 +10,60 @@ class ProductApiController extends Controller
 {
     public function index(Request $request)
     {
-        $lang = $request->query('lang', 'en');
-        if (!in_array($lang, ['en', 'id'])) {
-            return response()->json(['error' => 'Invalid language'], 400);
+        $lang = $this->validateLang($request);
+
+        $products = Product::all();
+
+        if ($products->isEmpty()) {
+            return response()->json(['message' => 'Products not yet available'], 200);
         }
 
-        return Product::all()->map(fn($product) => $this->transform($product, $lang));
+        return response()->json([
+            'data' => $products->map(fn($product) => $this->transform($product, $lang)),
+        ]);
     }
 
     public function show($id, Request $request)
     {
-        $lang = $request->query('lang', 'en');
-        if (!in_array($lang, ['en', 'id'])) {
-            return response()->json(['error' => 'Invalid language'], 400);
+        $lang = $this->validateLang($request);
+
+        $product = Product::find($id);
+
+        if (!$product) {
+            return response()->json([
+                'error' => "Product with ID {$id} does not exist"
+            ], 404);
         }
 
-        $product = Product::findOrFail($id);
-        return $this->transform($product, $lang);
+        return response()->json([
+            'data' => $this->transform($product, $lang),
+        ]);
+    }
+
+    private function validateLang(Request $request)
+    {
+        $lang = $request->query('lang', 'en');
+
+        if (!in_array($lang, ['en', 'id'])) {
+            abort(response()->json(['error' => 'Invalid language'], 400));
+        }
+
+        return $lang;
     }
 
     private function transform(Product $product, $lang)
     {
         return [
-            'name' => $product->name[$lang] ?? '',
-            'hs_code' => $product->hs_code ?? '',
-            'cas_number' => $product->cas_number ?? '',
+            'name' => e($product->name[$lang] ?? ''),
+            'hs_code' => e($product->hs_code ?? ''),
+            'cas_number' => e($product->cas_number ?? ''),
             'image_url' => isset($product->image) && $product->image ? asset('storage/' . $product->image) : null,
-            'description' => $product->description[$lang] ?? '',
-            'application' => $product->application[$lang] ?? '',
+            'description' => e($product->description[$lang] ?? ''),
+            'application' => e($product->application[$lang] ?? ''),
             'meta' => [
-                'meta_title' => $product->meta_title[$lang] ?? '',
-                'meta_keyword' => $product->meta_keyword[$lang] ?? '',
-                'meta_description' => $product->meta_description[$lang] ?? '',
+                'meta_title' => e($product->meta_title[$lang] ?? ''),
+                'meta_keyword' => e($product->meta_keyword[$lang] ?? ''),
+                'meta_description' => e($product->meta_description[$lang] ?? ''),
             ],
         ];
     }
