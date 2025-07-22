@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container py-4 bg-dark text-light">
+    <div class="container-fluid py-4 bg-dark text-light">
         <h1>Edit Product</h1>
         <a href="{{ route('products.index') }}" class="btn btn-secondary my-3">← Back</a>
 
